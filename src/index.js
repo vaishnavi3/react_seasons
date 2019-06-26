@@ -2,44 +2,29 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import SeasonDisplay from './SeasonDisplay';
 import Spinner from './Spinner';
+import useLocation from './useLocation';
 
-class App extends React.Component {
-  // no need to use constructor to def a state
-  // ..after going thrh babel it will automatically
-  // be converted to constructor
-  state = { lat: null, errorMessage: '' };
+const App = () => {
 
-  componentDidMount() {
-    window.navigator.geolocation.getCurrentPosition(
-      position => this.setState({ lat: position.coords.latitude}),
-      err => this.setState({ errorMessage: err.message})
-    );
-  }
+  const [lat, errorMessage] = useLocation();
 
-  componentDidUpdate() {
-    console.log('component rerendered');
-  }
-
-  // helper method
-  renderContent() {
-    if (this.state.errorMessage && !this.state.lat) {
-      return <div>Error: {this.state.errorMessage}</div>;
+  let content;
+    if (errorMessage) {
+      content = <div>Error: {errorMessage}</div>;
     }
-    if (!this.state.errorMessage && this.state.lat) {
-      return <SeasonDisplay  lat={this.state.lat}/>
+    else if (lat) {
+      content = <SeasonDisplay  lat={lat}/>;
+    }else {
+
+      content = <Spinner message="Please accept location request" />;
     }
 
-    return <Spinner message="Please accept location request" />;
-  }
+  return (
+    <div className='border red'>
+      {content}
+    </div>
+  );
 
-  render() {
-    return (
-      <div className='border red'>
-        {this.renderContent()}
-      </div>
-    );
-
-  }
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));
